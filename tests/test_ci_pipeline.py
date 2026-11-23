@@ -1,4 +1,4 @@
-"""Tests for ci/real_subject_test.py — the layer-2 real-subject CI driver.
+"""Tests for ci/pipeline_test.py — the layer-2 pipeline CI driver.
 
 The driver itself runs on the lab server against real data; these tests cover
 its pure logic on synthetic paths: that every output is redirected into the
@@ -18,14 +18,14 @@ import pytest
 
 from snbb_scheduler.config import Procedure, SchedulerConfig
 
-_DRIVER = Path(__file__).resolve().parent.parent / "ci" / "real_subject_test.py"
+_DRIVER = Path(__file__).resolve().parent.parent / "ci" / "pipeline_test.py"
 
 
 @pytest.fixture(scope="module")
 def drv():
-    spec = importlib.util.spec_from_file_location("real_subject_test", _DRIVER)
+    spec = importlib.util.spec_from_file_location("pipeline_test", _DRIVER)
     mod = importlib.util.module_from_spec(spec)
-    sys.modules["real_subject_test"] = mod
+    sys.modules["pipeline_test"] = mod
     spec.loader.exec_module(mod)
     return mod
 
@@ -356,7 +356,7 @@ def test_main_passes_when_everything_completes(e2e, capsys):
     out = capsys.readouterr().out
     assert "::add-mask::X123" in out
     assert out.index("::add-mask::") < out.index("SNBB_")
-    assert (work / "summary_real_subject_test.csv").exists()
+    assert (work / "summary_pipeline_ci.csv").exists()
 
 
 def test_main_fails_when_a_job_fails(e2e):
@@ -375,7 +375,7 @@ def test_main_writes_github_step_summary(e2e, tmp_path, monkeypatch):
     run, _, _ = e2e
     run("complete")
     text = summary.read_text()
-    assert "Real-subject test: done" in text
+    assert "CI pipeline: done" in text
     assert "X123" not in text and "2022" not in text
 
 

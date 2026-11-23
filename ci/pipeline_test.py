@@ -33,7 +33,7 @@ replaces them with ``***``, and the summary it writes uses anonymous labels.
 
 Usage
 -----
-    python ci/real_subject_test.py --base-config /path/to/production/config.yaml \
+    python ci/pipeline_test.py --base-config /path/to/production/config.yaml \
         --sessions /path/to/ci_sessions.csv --work-dir /path/to/ci_work
 """
 from __future__ import annotations
@@ -205,7 +205,7 @@ def reset_work_dir(work: Path) -> None:
                 f"(no {WORK_MARKER}); refusing to delete it"
             )
     work.mkdir(parents=True, exist_ok=True)
-    (work / WORK_MARKER).write_text("Scratch dir of ci/real_subject_test.py; wiped on every run.\n")
+    (work / WORK_MARKER).write_text("Scratch dir of ci/pipeline_test.py; wiped on every run.\n")
 
 
 # ---------------------------------------------------------------------------
@@ -303,8 +303,8 @@ def _table(df: pd.DataFrame) -> str:
 
 
 def _write_summary(report: pd.DataFrame, outcome: str, elapsed_h: float, work: Path) -> None:
-    report.to_csv(work / "summary_real_subject_test.csv", index=False)
-    lines = [f"## Real-subject test: {outcome}", "",
+    report.to_csv(work / "summary_pipeline_ci.csv", index=False)
+    lines = [f"## CI pipeline: {outcome}", "",
              f"Elapsed: {elapsed_h:.1f} h. "
              f"{int(report['complete'].sum())}/{len(report)} outputs complete.", "",
              _table(report)]

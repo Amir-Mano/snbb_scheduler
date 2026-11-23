@@ -19,7 +19,7 @@ SESSION="$2"   # e.g. ses-202602161208
 
 # SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Hardcoded rather than derived from BASH_SOURCE because sbatch runs a spooled
-# copy of this file. SNBB_SCRIPT_DIR overrides it (used by ci/real_subject_test.py).
+# copy of this file. SNBB_SCRIPT_DIR overrides it (used by ci/pipeline_test.py).
 SCRIPT_DIR="${SNBB_SCRIPT_DIR:-/home/galkepler/Projects/snbb_scheduler/scripts}"
 
 # Rsync the session to a local temp dir so post-processing runs on files owned

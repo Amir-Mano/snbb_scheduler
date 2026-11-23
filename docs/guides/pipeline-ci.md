@@ -1,11 +1,11 @@
-# Real-Subject CI
+# Pipeline CI
 
 Two GitHub Actions workflows test the scheduler:
 
 | Workflow | Runs on | When | Data |
 |---|---|---|---|
 | `tests.yml` | GitHub's machines | every PR and every push to `main` | synthetic (`pytest`) |
-| `real-subject-test.yml` | the lab server (self-hosted runner) | after every merge to `main`, or by hand | a few real sessions |
+| `ci-pipeline.yml` | the lab server (self-hosted runner) | after every merge to `main`, or by hand | a few real sessions |
 
 This page covers the second one: what it does and the one-time server setup.
 
@@ -14,7 +14,7 @@ This page covers the second one: what it does and the one-time server setup.
 ## What it does
 
 After a merge, the runner on the lab server checks out the new `main` and runs
-[`ci/real_subject_test.py`](https://github.com/Yaniv-Assaf-Lab/snbb_scheduler/blob/main/ci/real_subject_test.py), which:
+[`ci/pipeline_test.py`](https://github.com/Yaniv-Assaf-Lab/snbb_scheduler/blob/main/ci/pipeline_test.py), which:
 
 1. Wipes a scratch **work dir** and writes a test config there: the production
    config, with every output path (BIDS, derivatives, state, logs, cache) moved
@@ -28,7 +28,7 @@ After a merge, the runner on the lab server checks out the new `main` and runs
    test sessions has finished, a job fails, or 47 hours pass.
 4. Checks every (session, procedure) output on disk and fails unless all are
    complete. A table with anonymous labels (`subject1/session2`) goes to the
-   run's summary page and to `summary_real_subject_test.csv` in the work dir.
+   run's summary page and to `summary_pipeline_ci.csv` in the work dir.
 
 The result shows as ✅/❌ on the merge commit in `main`. Pull `main` into the
 production checkout only when it is ✅.
@@ -97,25 +97,25 @@ The runner only makes outbound HTTPS connections to GitHub; no ports are opened.
 ### 5. Safety setting
 
 **Settings → Actions → General → Fork pull request workflows**: require
-approval for all outside collaborators. The real-subject workflow never runs on
+approval for all outside collaborators. The pipeline workflow never runs on
 pull requests, but this keeps any future workflow from running fork code on
 the server unreviewed.
 
 ### 6. First run
 
-**Actions → Real-subject test → Run workflow** on `main`. The first step fails
+**Actions → CI / pipeline → Run workflow** on `main`. The first step fails
 with a clear message if a variable, file or `sbatch` is missing.
 
 ---
 
 ## Running it by hand
 
-- **Before merging a risky PR:** Actions → Real-subject test → Run workflow →
+- **Before merging a risky PR:** Actions → CI / pipeline → Run workflow →
   pick the PR's branch (needs write access to the repository).
 - **On the server, without GitHub:**
 
     ```bash
-    uv run python ci/real_subject_test.py --base-config <config.yaml> \
+    uv run python ci/pipeline_test.py --base-config <config.yaml> \
         --sessions <sessions.csv> --work-dir <work dir>
     ```
 
@@ -123,7 +123,7 @@ with a clear message if a variable, file or `sbatch` is missing.
   automatically when cancelled or failed):
 
     ```bash
-    uv run python ci/real_subject_test.py --cancel-jobs --work-dir <work dir>
+    uv run python ci/pipeline_test.py --cancel-jobs --work-dir <work dir>
     ```
 
 The work dir is wiped at the start of every run. The driver only deletes a

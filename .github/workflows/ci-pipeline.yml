@@ -1,8 +1,8 @@
-name: Real-subject test
+name: CI / pipeline
 
 # Runs the whole pipeline (raw DICOM -> every procedure) on a few real
 # sessions, on the lab server, in a scratch dir isolated from production.
-# See docs/guides/real-subject-ci.md for the one-time server setup.
+# See docs/guides/pipeline-ci.md for the one-time server setup.
 #
 # Runs after every merge to main, or by hand ("Run workflow", any branch).
 # Never on pull_request: this job executes code on the lab server, so it must
@@ -18,11 +18,11 @@ permissions:
 # One run at a time. A newer merge waits for the current run instead of
 # cancelling it (GitHub keeps only the newest waiting run).
 concurrency:
-  group: real-subject-test
+  group: ci-pipeline
   cancel-in-progress: false
 
 jobs:
-  real-subject-test:
+  pipeline:
     # Forks have no lab runner; without this the job would queue forever there.
     if: github.repository == 'Yaniv-Assaf-Lab/snbb_scheduler'
     runs-on: [self-hosted, snbb-server]
@@ -57,11 +57,11 @@ jobs:
 
       - name: Run pipeline on test sessions
         run: >
-          uv run --locked python ci/real_subject_test.py
+          uv run --locked python ci/pipeline_test.py
           --base-config "$BASE_CONFIG"
           --sessions "$SESSIONS_CSV"
           --work-dir "$WORK_DIR"
 
       - name: Cancel leftover Slurm jobs
         if: cancelled() || failure()
-        run: uv run --locked python ci/real_subject_test.py --cancel-jobs --work-dir "$WORK_DIR"
+        run: uv run --locked python ci/pipeline_test.py --cancel-jobs --work-dir "$WORK_DIR"
