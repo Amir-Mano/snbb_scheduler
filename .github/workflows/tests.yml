@@ -1,4 +1,4 @@
-name: Tests
+name: CI / tests
 
 # Unit/integration tests on synthetic data (tmp_path fixtures, mocked sbatch).
 # No access to real data or Slurm is needed, so this runs on GitHub-hosted runners.
